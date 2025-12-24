@@ -1,0 +1,1 @@
+-c 16384 -ngl 95 -ts 25,26,25,19 -ot "blk\.24\.ffn_down.*=CUDA1,blk\.50\.ffn_(gate|down).*=CUDA2"

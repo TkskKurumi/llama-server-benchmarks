@@ -1,0 +1,6 @@
+llama_memory_breakdown_print: | memory breakdown [MiB] | total   free     self   model   context   compute    unaccounted |
+llama_memory_breakdown_print: |   - CUDA0 (RTX 3080)   | 20181 =  913 + (17527 = 16918 +     225 +     384) +        1740 |
+llama_memory_breakdown_print: |   - CUDA1 (RTX 3080)   | 20181 = 2031 + (17895 = 17292 +     234 +     368) +         254 |
+llama_memory_breakdown_print: |   - CUDA2 (RTX 3080)   | 20181 = 2045 + (17879 = 17286 +     225 +     368) +         255 |
+llama_memory_breakdown_print: |   - CUDA3 (RTX 3080)   | 20181 = 4609 + (15318 = 14546 +     162 +     609) +         253 |
+llama_memory_breakdown_print: |   - Host               |                   413 =   333 +       0 +      80                |

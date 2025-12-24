@@ -125,7 +125,7 @@ def parse_args() -> TestConfig:
     parser.add_argument("-o", "--output", type=str, default="result.md", help="输出报告文件路径")
     parser.add_argument("--temperature", type=float, default=0.0, help="采样温度")
     parser.add_argument("--vision", action="store_true", help="启用图像理解功能测试")
-    parser.add_argument("--max_completion_tokens", type=int, default=512, help="最大输出token数")
+    parser.add_argument("--max_completion_tokens", type=int, default=128, help="最大输出token数")
     
     args = parser.parse_args()
     
@@ -152,6 +152,7 @@ class TestResult:
         self.name = name
         self.resp = resp
         if (self.resp):
+            # self.n_cached = resp.usage.prompt_tokens_details.cached_tokens
             self.prompt_tokens    = resp.usage.prompt_tokens
             self.predicted_tokens = resp.usage.completion_tokens
             if (hasattr(resp, "timings")):
@@ -222,23 +223,38 @@ if __name__ == "__main__":
 
     with open(config.output, "w", encoding="utf-8") as f:
         cl = openai.OpenAI(api_key=config.api_key, base_url=config.base_url)
-        with ThreadPoolExecutor(max_workers=config.parallel) as pool:
-            tasks: List[Future[TestResult]] = []
-            for i in range(config.repeat):
-                tasks.append(pool.submit(test_doc, config))
-                if (config.vision):
-                    tasks.append(pool.submit(test_image, config))
-            print(TestResult.md_header, file=f)
-            results = [t.result() for t in tasks]
-            results = sorted(results, key=lambda x:(x.name, getattr(x, "predicted_per_second", 0)))
-            for r in results:
-                print(r.md_table_line, file=f)
-        print(file=f)
-        print(f"`{config}`", file=f)
-        print(file=f)
         models = cl.models.list()
         model = next(iter(models))
         if (hasattr(model, "meta")):
             model_size = model.meta["n_params"] / 1e9
             model_qsize = model.meta["size"] / (1<<30)
             print(f"Model Size / Quant Size: {model_size:.1f} B / {model_qsize:.1f} GB", file=f)
+        print(file=f)
+        print(f"`{config}`", file=f)
+
+        with ThreadPoolExecutor(max_workers=config.parallel) as pool:
+            tasks: List[Future[TestResult]] = []
+            start_t = time.time()
+            for i in range(config.repeat):
+                tasks.append(pool.submit(test_doc, config))
+                if (config.vision):
+                    tasks.append(pool.submit(test_image, config))
+            print(TestResult.md_header, file=f)
+            results = []
+            for idx, t in enumerate(tasks):
+                print(f"Waiting for Task #{idx}")
+                results.append(t.result())
+            results = sorted(results, key=lambda x:(x.name, getattr(x, "predicted_per_second", 0)))
+            for r in results:
+                print(r.md_table_line, file=f)
+            elapse = time.time()-start_t
+            print(file=f)
+            print(f"Elapsed Time = {elapse:.1f} seconds.", file=f)
+            elapse_parallel = sum(getattr(r, "elapse", 0) for r in results)
+            if (elapse_parallel):
+                print(file=f)
+                print(f"server-reported total elapse time = {elapse_parallel:.1f} seconds.", file=f)
+                print(file=f)
+                print(f"Parallel ratio = {elapse_parallel/elapse:.1f}x", file=f)
+        
+        

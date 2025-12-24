@@ -1,0 +1,1 @@
+-c 65536 -ngl 95 -ts 24,25,24,22 -ot "blk\.23\.ffn_down.*=CUDA1,blk\.48\.ffn_(gate|down).*=CUDA2,blk\.93\.ffn_down.*=CPU,blk\.94\.ffn_(up|down|gate)_(ch|)exps=CPU"

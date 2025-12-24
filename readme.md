@@ -16,25 +16,45 @@ llama-cpp: b7522-849d02110
 图片任务和文档任务交错，可能在batch内混合。
 max_completion_tokens = 128。
 
-由于先开始的任务的predict，可能和后开始的任务的prefill在同一batch执行，导致前序的predict可能较慢；大部分任务已结束，最后的任务可以独占算力。所以成绩中最慢和最快的结果可能差异巨大。
+prefill和predict混合在一个batch内时，predict per second可能会显得很慢；大部分任务已结束，最后的任务可以独占算力。所以成绩中最慢和最快的结果可能差异巨大。
 
 我个人主要用途为QQ群聊bot。按经验测试11k前文、最大16k、4并行符合我的需求，注重responsivenesss（一分钟内要有结果），所以没有测试更大RAM offload的模型。GLM-4.6跑得太慢了（可能有bug），所以max_completion_tokens设得很小。
 
 ## Qwen3-VL-235B-A22B-Instruct - Unsloth Dynamic Quantization IQ1_M
 
+Parallel = 4
+
 |Task|Elapse|Tokens Per Second|Prompt Per Second|Predict Per Second|Prompt|Predict|
 |----|-----:|----------------:|----------------:|-----------------:|-----:|------:|
-|Document Understanding|96.4|125.6|370.4|2.00|11980|128|
-|Document Understanding|89.7|134.9|312.1|2.49|11980|128|
-|Document Understanding|97.3|124.4|255.5|2.54|11982|128|
-|Document Understanding|71.8|168.7|304.0|3.95|11978|128|
-|Vision Understanding|92.2|24.6|89.8|1.87|2136|128|
-|Vision Understanding|92.2|24.6|90.0|1.87|2140|128|
-|Vision Understanding|38.4|59.0|113.3|6.54|2137|128|
-|Vision Understanding|38.4|58.9|113.3|6.54|2136|128|
+|Document Understanding|97.4|124.3|368.4|1.97|11982|128|
+|Document Understanding|95.9|126.3|374.7|2.00|11980|128|
+|Document Understanding|91.6|132.3|306.7|2.44|11981|128|
+|Document Understanding|59.2|204.3|365.3|4.84|11978|128|
+|Vision Understanding|71.2|31.8|123.3|2.38|2136|128|
+|Vision Understanding|64.1|35.3|113.9|2.82|2136|128|
+|Vision Understanding|64.1|35.3|114.0|2.82|2138|128|
+|Vision Understanding|32.8|69.0|165.1|6.43|2135|128|
+
+Elapsed Time = 194.8 seconds.
 
 [results.md](Qwen3-VL-235B-IQ1_M/result.md)
 
+Parallel = 1
+
+|Task|Elapse|Tokens Per Second|Prompt Per Second|Predict Per Second|Prompt|Predict|
+|----|-----:|----------------:|----------------:|-----------------:|-----:|------:|
+|Document Understanding|36.6|331.0|395.5|20.33|11977|128|
+|Document Understanding|36.4|332.5|397.6|20.34|11980|128|
+|Document Understanding|36.4|332.5|397.1|20.46|11979|128|
+|Document Understanding|36.4|332.8|397.3|20.51|11979|128|
+|Vision Understanding|10.9|207.6|319.1|30.32|2135|128|
+|Vision Understanding|10.8|208.9|316.7|31.19|2137|128|
+|Vision Understanding|10.9|208.7|315.9|31.21|2138|128|
+|Vision Understanding|10.8|208.8|316.6|31.21|2134|128|
+
+Elapsed Time = 194.6 seconds.
+
+[results-np1.md](Qwen3-VL-235B-IQ1_M/result-np1.md)
 
 ## Qwen3-Next-80B - Unsloth Dynamic Quantization Q6_K_XL
 
