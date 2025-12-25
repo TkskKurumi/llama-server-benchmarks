@@ -7,6 +7,8 @@ Driver Version: 550.78
 CUDA Version: 12.4
 llama build flags: -DGGML_CUDA=ON
 llama-cpp: b7522-849d02110
+48 vCPU Intel(R) Xeon(R) Platinum 8352V CPU @ 2.10GHz
+sysbench memory --threads=48 --memory-total-size=96G run -> 8670.82 MiB/sec
 ```
 
 服务端设置上下文长度16k，4slots并行。客户端4 requsts并行请求，prompt前加入随机字符串使前缀缓存失效。读取图片或文档作为输入。offload策略为--fit参数自动产生（对于视觉模型，由于mmproj offload到main-gpu，有不平衡问题，暂且放大了--fit-target浪费其余GPU，有待调优）。
@@ -19,6 +21,23 @@ max_completion_tokens = 128。
 prefill和predict混合在一个batch内时，predict per second可能会显得很慢；大部分任务已结束，最后的任务可以独占算力。所以成绩中最慢和最快的结果可能差异巨大。
 
 我个人主要用途为QQ群聊bot。按经验测试11k前文、最大16k、4并行符合我的需求，注重responsivenesss（一分钟内要有结果），所以没有测试更大RAM offload的模型。GLM-4.6跑得太慢了（可能有bug），所以max_completion_tokens设得很小。
+
+## DeepsSeek-V3.1-Terminus - Unsloth Dynamic Quantization TQ1_0
+
+Model Size / Quant Size: 671.0 B / 152.0 GB
+
+Parallel = 1
+
+|Task|Elapse|Tokens Per Second|Prompt Per Second|Predict Per Second|Prompt|Predict|
+|----|-----:|----------------:|----------------:|-----------------:|-----:|------:|
+|Document Understanding|220.6|58.3|64.5|5.50|12729|128|
+|Document Understanding|225.8|57.0|62.8|5.57|12731|128|
+|Document Understanding|222.0|57.9|63.7|5.74|12732|128|
+|Document Understanding|223.7|57.5|62.6|6.32|12733|128|
+
+Elapsed Time = 893.7 seconds.
+
+[results.md](DeepSeekV3.1-Terminus-TQ1/result.md)
 
 ## Qwen3-VL-235B-A22B-Instruct - Unsloth Dynamic Quantization IQ1_M
 
