@@ -37,7 +37,7 @@ Parallel = 1
 
 Elapsed Time = 893.7 seconds.
 
-[results.md](DeepSeekV3.1-Terminus-TQ1/result.md)
+[results-np=1.md](DeepSeekV3.1-Terminus-TQ1/result-np=1.md)
 
 ## Qwen3-VL-235B-A22B-Instruct - Unsloth Dynamic Quantization IQ1_M
 
